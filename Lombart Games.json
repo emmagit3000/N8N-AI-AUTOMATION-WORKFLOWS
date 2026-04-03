@@ -1,0 +1,422 @@
+{
+  "name": "Lombart Games",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        0
+      ],
+      "id": "628d3a18-10de-4746-bc88-a5be78c766ab",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "https://drive.google.com/drive/folders/1qEMDRLwafL0A7DDVUT_nD6U3E36feeLy?usp=drive_link",
+            "mode": "url"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -128,
+        0
+      ],
+      "id": "45786dbb-84b4-45a7-ac45-c8c0fca301ad",
+      "name": "Search files and folders",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "W47YuhtJbDQt8ykP",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        80,
+        0
+      ],
+      "id": "c2d5e09c-8675-4c12-b9db-a16cb08ff499",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "W47YuhtJbDQt8ykP",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        272,
+        -32
+      ],
+      "id": "c128322f-54ff-4b4e-9ba8-7007cb931c46",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "new-pinecone-index1",
+          "mode": "list",
+          "cachedResultName": "new-pinecone-index1"
+        },
+        "embeddingBatchSize": 3072,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        448,
+        80
+      ],
+      "id": "8c65adbb-4175-4c4b-bec4-f538c9ed6be4",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "LkLsPQdBG2M0w1HE",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        464,
+        320
+      ],
+      "id": "b49d97bb-9426-4af8-8cf5-1cb2f60ffaf1",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        576,
+        448
+      ],
+      "id": "3f702d73-b721-4096-89fe-83b1e38fe90b",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        816,
+        48
+      ],
+      "id": "ed17910c-a015-43d7-bb24-b35ea666af56",
+      "name": "When chat message received",
+      "webhookId": "8ce2fd43-cd6c-446a-bdd3-79361dbcda6c"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1040,
+        16
+      ],
+      "id": "1e8ec188-888a-4740-8f66-65ed381c9b4b",
+      "name": "RAG AGENT"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 12
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1024,
+        304
+      ],
+      "id": "93412794-ee65-4140-9055-995f92b706f7",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Pinecone Vector Store Description (Comprehensive Prompt)\nDescription:\nThis vector index stores processed and chunked textual content extracted from internal documents, files, guides, reports, and policies belonging to the Lotharm Ltd gaming and digital operations environment.\nEach stored vector represents a semantic chunk of text generated using Google Gemini Embeddings, optimized for Retrieval-Augmented Generation (RAG) inside n8n.\nThe stored embeddings allow an AI Agent to:\nRetrieve the most relevant knowledge sections when users ask questions\nProvide accurate answers grounded strictly in uploaded company documents\nSummarize, reference, or cross-check information across multiple files\nSupport automated workflows such as knowledge lookup, SOP assistance, company Q&A, and policy explanation\nMaintain consistency across internal communications by always grounding responses in verified source materials\nContent Types Included in this Vector Store\nCompany policies & governance documents\nDepartmental guidelines (AI/ML, DevOps, Security, QA)\nStandard operating procedures (SOPs)\nIncident response and escalation frameworks\nSoftware development lifecycle documentation\nKnowledge management guides\nInternal training materials\nProduct/process documentation\nAny future documents added via automated ingestion workflow (Google Drive → n8n)\nEmbedding Details\nModel: Google Gemini Embeddings\nChunking: Character-based recursive splitter\nPurpose: Enable semantic search, contextual grounding, and factual retrieval\nUse-Case: n8n AI Agent calls the Pinecone index to retrieve context for RAG-enabled conversations.\nRAG Behavior Expectations\nThis index should return:\nThe most relevant chunks related to a user’s query\nHigh-quality semantic matches even when queries are phrased differently\nSufficient document context for the AI Agent to generate:\npolicy explanations\nprocedural guidance\ntroubleshooting steps\nsummaries\nclarifications\ndocumentation references\nRestrictions & Guardrails\nThe AI agent should:\nOnly rely on content retrieved from this vector store\nAvoid fabricating answers not supported by stored documents\nCite or reference retrieved sections when possible\nPrioritize factual accuracy over creativity\nKeep internal information confidential and contextualized\nIntended Applications\nThis Pinecone index powers the following automation scenarios in n8n:\nInternal knowledge assistant for employees\nRAG-based chat assistant embedded in workflows\nAutomated response generator for SOP or documentation queries\nAI support for onboarding, compliance, and operational tasks\nReal-time policy, process, or guideline lookup",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "new-pinecone-index1",
+          "mode": "list",
+          "cachedResultName": "new-pinecone-index1"
+        },
+        "topK": 10,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        1232,
+        256
+      ],
+      "id": "8f42e8c8-6842-4984-89a2-d247d2d53544",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "LkLsPQdBG2M0w1HE",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        304,
+        320
+      ],
+      "id": "a8e6b4f8-e87c-48eb-a574-798203b5622c",
+      "name": "Embeddings Google Gemini2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "MTgEaOIJB1itdTGp",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        912,
+        224
+      ],
+      "id": "c3543054-b678-479d-87af-704abe73ce68",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "MTgEaOIJB1itdTGp",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        464
+      ],
+      "id": "4a92106b-8f5d-4e53-b910-8fba0c0effbd",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "MTgEaOIJB1itdTGp",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "RAG AGENT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "RAG AGENT",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG AGENT",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RAG AGENT",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "af0d485f-722a-402b-ae65-79c0eafd4d77",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "616ab61eb95aa5f2480a14bae2cef9cce1797409bbcaabc53cda66e5d13623be"
+  },
+  "id": "F5SndThHfBU7cgbE",
+  "tags": []
+}

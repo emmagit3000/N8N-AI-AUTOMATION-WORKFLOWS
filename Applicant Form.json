@@ -1,0 +1,440 @@
+{
+  "name": "Applicant Form",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Applicant Information",
+        "formDescription": "Enter your personal information here...",
+        "formFields": {
+          "values": [
+            {
+              "fieldName": "full-name",
+              "fieldLabel": "Full Name",
+              "placeholder": "Enter your  full name: ",
+              "requiredField": true
+            },
+            {
+              "fieldName": "email-address",
+              "fieldLabel": "Email Address",
+              "fieldType": "email",
+              "placeholder": "Enter your email: ",
+              "requiredField": true
+            },
+            {
+              "fieldName": "programming-language",
+              "fieldLabel": "Programming Language",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Python"
+                  },
+                  {
+                    "option": "JavaScript"
+                  },
+                  {
+                    "option": "R"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldName": "experience-level",
+              "fieldLabel": "Experience Level",
+              "fieldType": "radio",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "0-1"
+                  },
+                  {
+                    "option": "2-5"
+                  },
+                  {
+                    "option": ">5"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "871a55a2-76f5-4469-a72e-c7e8d6bf511a",
+      "name": "On form submission",
+      "webhookId": "fec6540f-46b7-49ae-8d8a-747575b76334"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1tQTTu5ldGkHu8K3-SLmE286DNhT4yHEtFZTBjbmv2cw",
+          "mode": "list",
+          "cachedResultName": "Applicant Info",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tQTTu5ldGkHu8K3-SLmE286DNhT4yHEtFZTBjbmv2cw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tQTTu5ldGkHu8K3-SLmE286DNhT4yHEtFZTBjbmv2cw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "full-name": "={{ $json['full-name'] }}",
+            "email-address": "={{ $json['email-address'] }}",
+            "programming-language": "={{ $json['programming-language'] }}",
+            "experience-level": "={{ $json['experience-level'] }}"
+          },
+          "matchingColumns": [
+            "email-address"
+          ],
+          "schema": [
+            {
+              "id": "full-name",
+              "displayName": "full-name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email-address",
+              "displayName": "email-address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "programming-language",
+              "displayName": "programming-language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "experience-level",
+              "displayName": "experience-level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "f4da04d1-64ce-4bc3-89ee-e36237ec58b5",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8d67QBAL3X43v2Ei",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ab635563-24c2-4eee-b2bf-68322f6780c6",
+              "leftValue": "={{ $json['programming-language'] }}",
+              "rightValue": "Python",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "050b0c2b-48e9-4a10-9803-a253692fd9e3",
+              "leftValue": "={{ $json['programming-language'] }}",
+              "rightValue": "JavaScript",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        432,
+        0
+      ],
+      "id": "4964517a-6800-46a0-9fbb-41cf2b62e0b5",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('On form submission').item.json['programming-language'] }}",
+                    "rightValue": "Python",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e39847b2-c76b-4de6-901d-33d3e2362e49"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Python Developers"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b25ec88e-9e95-4a35-b066-75b4e25c0abf",
+                    "leftValue": "={{ $('On form submission').item.json['programming-language'] }}",
+                    "rightValue": "JavaScript",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "JavaScript Developers"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        0
+      ],
+      "id": "f5f79bc3-a167-45ae-9ff8-0a5be278d2ac",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Filter').item.json['email-address'] }}",
+        "subject": "=Hello {{ $('Filter').item.json['full-name'] }}",
+        "emailType": "text",
+        "message": "THANK YOU FOR APPLYING! AS A PYTHON DEVELOPER, PLEASE BUILD A SAMPLE REST API USING EITHER FASTAPI OR FLASK THAT DEMONSTRATES USER AUTHENTICATION AND CRUD OPERATIONS. SUBMIT YOUR GITHUB LINK WITHIN 7 DAYS.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        -176
+      ],
+      "id": "6c185306-d3ce-4247-89aa-fc36ff48c53a",
+      "name": "Send a message",
+      "webhookId": "c7094c9a-bc3e-4238-adfb-e78e8026374f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "IMF3oJd0AWMuICbB",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Filter').item.json['email-address'] }}",
+        "subject": "=Hi {{ $('Filter').item.json['full-name'] }}",
+        "emailType": "text",
+        "message": "THANK YOU FOR APPLYING! AS A JAVASCRIPT DEVELOPER, PLEASE BUILD A SAMPLE BACKEND SERVICE USING NODEJS WITH EXPRESS THAT INCLUDES JWT AUTHENTICATION AND CONNECTS TO A DATABASE. SUBMIT YOUR GITHUB LINK WITHIN 7 DAYS.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        32
+      ],
+      "id": "2d37fb05-e03e-4665-b40b-3c46dd2c7cf6",
+      "name": "Send a message1",
+      "webhookId": "d878a860-26cb-48cd-a995-96f3af3287e0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "IMF3oJd0AWMuICbB",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "={{ $('Filter').item.json['email-address'] }}",
+        "subject": "=Hello {{ $('Filter').item.json['full-name'] }}",
+        "message": "Thank you for applying to 10alytics.\n\nWe're only accepting Javascript and Python developers. If you code in R for data science or java for Fullstack Development, please send in your portfolio. ",
+        "responseType": "freeText",
+        "options": {
+          "responseFormTitle": "Applicant Portfolio"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        240
+      ],
+      "id": "a3023f32-0321-4229-b511-b2fc1afb3a5e",
+      "name": "Send message and wait for response",
+      "webhookId": "b9733eb1-c606-44ce-91d4-9b3281fee4d2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "IMF3oJd0AWMuICbB",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Better for DATA MINIMIZATION in a situation whereby unqualified applicants' information are to be FULLY DISCARDED.",
+        "height": 112
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "3d3df22a-5a5f-47c3-b2dd-fd397c73eb7d",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "ac7189ff-1710-45ff-8fa2-cee33d42de07",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "616ab61eb95aa5f2480a14bae2cef9cce1797409bbcaabc53cda66e5d13623be"
+  },
+  "id": "ao8t3zx0zjA8fmu6",
+  "tags": []
+}

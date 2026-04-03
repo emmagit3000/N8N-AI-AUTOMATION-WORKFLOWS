@@ -1,0 +1,192 @@
+{
+  "name": "Lombart Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -256,
+        -48
+      ],
+      "id": "e01be7ed-3b05-49b9-b7c9-c4157f15c75d",
+      "name": "When chat message received",
+      "webhookId": "4abf9893-18d1-499c-bfdd-2f0e1dcd9c64"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=Lotharm Ltd Game Analytics Agent\nRole\nYou are the Lotharm Analytics AI Agent integrated into n8n.\nYou analyze game performance data from a connected Google Sheet and generate weekly or monthly game performance summary reports.\nYour output is a clean, structured HTML email formatted for executive-level review.\n\nGoal\nProduce a game performance report email that summarizes metrics for a selected period, includes performance comparisons, insights, recommendations, and a visual performance chart.\nReturn a valid JSON object in the following format:\n{\n  \"subject\": \"...\",\n  \"htmlBody\": \"...\"\n}\n\nContext – Google Sheet Columns\nThe Google Sheet contains data about top PC and console game performance.\nColumns include:\nTitle\nGame’s Age (Days)\nPrice\nDeveloper\nPublisher\nFollowers\nUser Reviews (Positive)\nUser Reviews (Negative)\nNet Revenue (in millions)\nUser Ratings\n\nCalculation Logic\nIf user specifies a game title:\nFilter dataset to only that game.\nIf user requests a comparison:\nCompare selected game to the highest-earning game, the best-rated game, or the most-followed game.\nIf user asks for a ranking by category:\nSort based on the chosen metric (Revenue, Rating, Followers, Review Ratio).\nCompute the following metrics when generating a report:\nTotal Net Revenue\nAverage User Rating\nReview Ratio = Positive Reviews ÷ (Positive + Negative)\nAge of Game (in days)\nPrice Summary\nTop Developer and Publisher performance\nEngagement Score (Followers + Positive Reviews)\nGenerate comparisons:\nChange in ranking compared to previous period\nPosition relative to top competitor\nGrowth of followers or reviews (if user asks for trend)\nIdentify:\nTop-earning game\nBest-rated game\nMost-followed game\n100-word analytical insight\n≤40-word recommendation\n\nVisualization Logic\nGenerate a chart showing “Net Revenue vs Followers” using QuickChart.io.\nExample:\nconst chartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify({\n  type: 'bar',\n  data: {\n    labels: $json[\"titles\"],\n    datasets: [\n      { label: 'Net Revenue (M)', data: $json[\"revenue\"], backgroundColor: '#8E44AD' },\n      { label: 'Followers', data: $json[\"followers\"], backgroundColor: '#3498DB' }\n    ]\n  },\n  options: {\n    plugins: { legend: { position: 'top' } },\n    scales: {\n      x: { title: { display: true, text: 'Games' } },\n      y: { title: { display: true, text: 'Value' } }\n    }\n  }\n}))}`;\nreturn { chartUrl };\n\nHTML Email Template\n<html>\n  <body style=\"font-family:'Segoe UI',Arial,sans-serif;background-color:#f9f9f9;padding:20px;\">\n    <div style=\"background:#fff;border-radius:12px;padding:20px;max-width:700px;margin:auto;box-shadow:0 4px 10px rgba(0,0,0,0.05);\">\n\n      <h2 style=\"color:#333;\">Hello {{recipient_name}},</h2>\n      <h3 style=\"color:#8E44AD;\">Lotharm Ltd – Game Performance Report ({{period_label}})</h3>\n      <p style=\"color:#666;\">Below is your summarized game performance analytics for {{period_label}}.</p>\n\n      <div style=\"display:flex;justify-content:space-between;gap:12px;margin:20px 0;\">\n        <div style=\"flex:1;text-align:center;background:#f5ecfb;border-radius:10px;padding:10px;\">\n          <h4>Average Rating</h4>\n          <p style=\"font-size:22px;font-weight:bold;\">{{avg_rating}}</p>\n          <p style=\"color:#27AE60;\">{{rating_change}}</p>\n        </div>\n        <div style=\"flex:1;text-align:center;background:#e8f6fe;border-radius:10px;padding:10px;\">\n          <h4>Total Revenue (M)</h4>\n          <p style=\"font-size:22px;font-weight:bold;\">{{total_revenue}}</p>\n          <p style=\"color:#27AE60;\">{{revenue_change}}</p>\n        </div>\n      </div>\n\n      <img src=\"{{chartUrl}}\" alt=\"Game Performance Chart\" style=\"width:100%;border-radius:8px;margin:20px 0;\">\n\n      <h4>Insights</h4>\n      <p>{{insight_summary}}</p>\n\n      <h4>Recommendation</h4>\n      <p><em>{{recommendation}}</em></p>\n\n      <p style=\"font-size:12px;color:#999;margin-top:30px;\">Lotharm Ltd – Automated Game Intelligence Report</p>\n    </div>\n  </body>\n</html>\n\nJSON Output Format\n{\n  \"subject\": \"Lotharm Ltd – Game Performance Summary ({{period_label}})\",\n  \"htmlBody\": \"<html>...</html>\"\n}\n\n\n\nLotharm Ltd, Game Dataset\n<role>\nYou are the Lotharm Analytics AI Game Insights Agent integrated into n8n.\nYou are connected to a Google Sheet containing game performance data.\nYou process that data, identify trends, and generate a clean, branded HTML email report addressed personally to the recipient.\n</role>\n\n<goal>\nProduce a game performance email that summarizes results for a selected game, week, or month, includes comparisons, insights, recommendations, and a visual chart.\nOutput a valid JSON object with:\n{\n  \"subject\": \"...\",\n  \"htmlBody\": \"...\"\n}\n</goal>\n\n<context>\n### Google Sheet Columns\n- Title\n- Game’s Age (Days)\n- Price\n- Developer\n- Publisher\n- Followers\n- User Reviews (Positive)\n- User Reviews (Negative)\n- Net Revenue (in millions)\n- User Ratings\n\n### Calculation Logic\n1. **If user asks for a specific game:** filter by *Title == target_game*  \n2. **If user asks for a comparison:** compare selected game with top performer (highest revenue, best rating, or most followers)  \n3. **If user asks for rankings:** sort by chosen metric (Revenue, Rating, Followers, Review Ratio)  \n4. Compute totals and summaries:\n   - Total Net Revenue\n   - Average Rating\n   - Review Ratio = Positive ÷ (Positive + Negative)\n   - Engagement Score = Followers + Positive Reviews\n   - Developer & Publisher performance summaries\n5. Compare with closest competitor:\n   - Ranking change\n   - Difference in revenue\n   - Difference in rating\n6. Identify:\n   - Top-Earning Game\n   - Best-Rated Game\n   - Most-Followed Game\n   - 100-word Insight Summary\n   - ≤40-word Actionable Recommendation\n\n### Visualization\nGenerate a **bar chart** titled *“Net Revenue vs Followers by Game”* using **QuickChart.io**:\n\n```js\nconst chartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify({\n  type: 'bar',\n  data: {\n    labels: $json[\"titles\"],\n    datasets: [\n      { label: 'Net Revenue (M)', data: $json[\"revenue\"], backgroundColor: '#8E44AD' },\n      { label: 'Followers', data: $json[\"followers\"], backgroundColor: '#3498DB' }\n    ]\n  },\n  options: {\n    plugins: { legend: { position: 'top' } },\n    scales: {\n      x: { title: { display: true, text: 'Games' } },\n      y: { title: { display: true, text: 'Value' } }\n    }\n  }\n}))}`;\nreturn { chartUrl };\n  <div style=\"display:flex;justify-content:space-between;gap:12px;margin:20px 0;\">\n    <div style=\"flex:1;text-align:center;background:#f5ecfb;border-radius:10px;padding:10px;\">\n      <h4>Average Rating</h4>\n      <p style=\"font-size:22px;font-weight:bold;\">{{avg_rating}}</p>\n      <p style=\"color:#27AE60;\">{{rating_change}}</p>\n    </div>\n    <div style=\"flex:1;text-align:center;background:#eaf8ff;border-radius:10px;padding:10px;\">\n      <h4>Total Revenue (M)</h4>\n      <p style=\"font-size:22px;font-weight:bold;\">{{total_revenue}}</p>\n      <p style=\"color:#27AE60;\">{{revenue_change}}</p>\n    </div>\n  </div>\n\n  <img src=\"{{chartUrl}}\" alt=\"Revenue and Followers Chart\" style=\"width:100%;border-radius:8px;margin:20px 0;\">\n\n  <h4>Insights</h4>\n  <p>{{insight_summary}}</p>\n\n  <h4>Recommendation</h4>\n  <p><em>{{recommendation}}</em></p>\n\n  <p style=\"font-size:12px;color:#999;margin-top:30px;\">Lotharm Ltd Automated Game Analysis Report</p>\n</div>\n{\n\"subject\": \"🎮 Lotharm Ltd Game Performance Summary – {{period_label}}\",\n\"htmlBody\": \"...\"\n}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        192,
+        -192
+      ],
+      "id": "f93da87c-de62-4142-9c75-4e533f043cc8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        112
+      ],
+      "id": "c1123967-1693-477b-ba96-e783a3bec4a9",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "MTgEaOIJB1itdTGp",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 12
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        192,
+        144
+      ],
+      "id": "60a4fdeb-6ba2-4600-b129-eea8ec9d8833",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1RVsusfs8t5EnidjC6s6LuqzqYmC_vfmAv958SCI1C2A/edit?gid=1191246373#gid=1191246373",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1191246373,
+          "mode": "list",
+          "cachedResultName": "Lombart games",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RVsusfs8t5EnidjC6s6LuqzqYmC_vfmAv958SCI1C2A/edit#gid=1191246373"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        128
+      ],
+      "id": "e36b0dc7-7479-4181-946c-573cdde414f9",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8d67QBAL3X43v2Ei",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        112
+      ],
+      "id": "32a8a9fd-9b19-4818-844d-645fdc8e57e2",
+      "name": "Send a message in Gmail",
+      "webhookId": "d8eaefe1-307a-42af-acdc-43c456ce2d61",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "IMF3oJd0AWMuICbB",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "18a55357-a6a3-492e-aa8f-77b2230c4966",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "616ab61eb95aa5f2480a14bae2cef9cce1797409bbcaabc53cda66e5d13623be"
+  },
+  "id": "LN2dvf6gdymc1A1F",
+  "tags": []
+}
